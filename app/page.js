@@ -35,6 +35,8 @@ export default function Landing() {
   const [regForm, setRegForm]       = useState({ name: '', email: '', business: '' })
   const [regSubmitted, setRegSubmitted] = useState(false)
   const [theme, setTheme]           = useState('dark')
+  const [mobileProducts, setMobileProducts] = useState(false)
+  const [showWelcome, setShowWelcome] = useState(false)
   const dropdownRef = useRef(null)
 
   // System theme detection + user override
@@ -104,6 +106,15 @@ export default function Landing() {
     }
   }, [])
 
+  // Welcome message — show once per session
+  useEffect(() => {
+    const welcomed = sessionStorage.getItem('ke_welcomed')
+    if (!welcomed) {
+      setShowWelcome(true)
+      sessionStorage.setItem('ke_welcomed', '1')
+    }
+  }, [])
+
   // Close dropdown on outside click
   useEffect(() => {
     const handle = (e) => {
@@ -142,6 +153,9 @@ export default function Landing() {
         .stats-bar   { display: grid; grid-template-columns: repeat(3, 1fr); }
         .nav-links   { display: flex; gap: 24px; align-items: center; }
         .mobile-menu-btn { display: none !important; }
+        .desktop-only { display: flex !important; }
+        .mobile-only  { display: none !important; }
+        .desktop-only-inline { display: inline-flex !important; }
         .hero-mockup { display: block; }
         .cta-btn { transition: all 0.25s ease; cursor: pointer; }
         .cta-btn:hover { transform: scale(1.04); box-shadow: 0 0 30px rgba(0,255,148,0.35); }
@@ -180,8 +194,11 @@ export default function Landing() {
           .edge-grid    { grid-template-columns: repeat(2, 1fr) !important; }
           .stats-bar    { grid-template-columns: repeat(3, 1fr) !important; }
           .nav-links    { display: none !important; }
-          .mobile-menu-btn { display: flex !important; }
-          .startup-badge { top: 76px !important; right: 50% !important; transform: translateX(50%) !important; }
+          .mobile-menu-btn { display: flex !important; align-items: center; justify-content: center; }
+          .desktop-only { display: none !important; }
+          .desktop-only-inline { display: none !important; }
+          .mobile-only  { display: flex !important; }
+
         }
         @media (max-width: 600px) {
           .features-grid { grid-template-columns: 1fr !important; }
@@ -190,8 +207,68 @@ export default function Landing() {
           .hero-btns button, .hero-btns a button { width: 100% !important; }
           .cta-btns      { flex-direction: column !important; align-items: stretch !important; }
           .footer-inner  { flex-direction: column !important; gap: 14px !important; text-align: center !important; }
+          .modal-box     { padding: 0 !important; border-radius: 16px !important; }
+          .welcome-highlights { grid-template-columns: 1fr !important; }
+          .dev-grid      { grid-template-columns: 1fr !important; }
+          .market-grid   { grid-template-columns: 1fr !important; }
+          .stats-bar     { grid-template-columns: repeat(3,1fr) !important; }
+          section        { padding-left: 5% !important; padding-right: 5% !important; }
+        }
+        @media (max-width: 400px) {
+          .features-grid { grid-template-columns: 1fr !important; }
+          .steps-grid    { grid-template-columns: 1fr !important; }
         }
       `}</style>
+
+      {/* ── WELCOME MODAL ── */}
+      {showWelcome && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(12px)' }}
+          onClick={(e) => e.target === e.currentTarget && setShowWelcome(false)}>
+          <div className="modal-box" style={{ background: T.bgModal, border: `1px solid ${T.greenNav}30`, borderRadius: '24px', padding: '0', width: '100%', maxWidth: '520px', overflow: 'hidden', boxShadow: T.shadow }}>
+            {/* Top banner */}
+            <div style={{ background: `linear-gradient(135deg, ${T.greenNav}15, ${T.purple}10)`, padding: '32px 36px 24px', borderBottom: `1px solid ${T.border}`, textAlign: 'center', position: 'relative' }}>
+              <div style={{ width: '64px', height: '64px', borderRadius: '16px', background: `linear-gradient(135deg,${T.greenNav},${T.greenDark})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '28px', color: '#070A0E', margin: '0 auto 16px' }}>K</div>
+              <h2 style={{ fontFamily: 'DM Serif Display, serif', fontSize: '26px', color: T.text, marginBottom: '6px', fontWeight: 400 }}>
+                Welcome to <span style={{ color: T.greenNav, fontStyle: 'italic' }}>Kirana Edge</span>
+              </h2>
+              <p style={{ fontSize: '13px', color: T.textMuted, lineHeight: 1.5 }}>The offline-first digital store for India's Kiranas</p>
+            </div>
+            {/* Body */}
+            <div style={{ padding: '24px 36px' }}>
+              {/* Startup badge */}
+              <div style={{ background: 'rgba(124,111,255,0.08)', border: '1px solid rgba(124,111,255,0.2)', borderRadius: '10px', padding: '10px 14px', marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <span style={{ fontSize: '20px' }}>🏛️</span>
+                <div>
+                  <div style={{ fontSize: '10px', fontWeight: 700, color: T.purple, letterSpacing: '0.06em' }}>RATAN TATA INNOVATION HUB</div>
+                  <div style={{ fontSize: '11px', color: T.textMuted }}>TRL5 · Under Approval Phase</div>
+                </div>
+              </div>
+              {/* 3 highlights */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '10px', marginBottom: '24px' }}>
+                {[['📡','Works 100% offline','No internet needed'],['🧠','Edge AI','On-device intelligence'],['🏪','Built for India','Tier-2 & Tier-3 cities']].map(([icon,title,sub]) => (
+                  <div key={title} style={{ background: T.bgCard, border: `1px solid ${T.border}`, borderRadius: '12px', padding: '14px 12px', textAlign: 'center' }}>
+                    <div style={{ fontSize: '22px', marginBottom: '6px' }}>{icon}</div>
+                    <div style={{ fontSize: '11px', fontWeight: 700, color: T.text, marginBottom: '2px' }}>{title}</div>
+                    <div style={{ fontSize: '10px', color: T.textMuted }}>{sub}</div>
+                  </div>
+                ))}
+              </div>
+              {/* Buttons */}
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button onClick={() => { setShowWelcome(false); setShowRegModal(true) }}
+                  className="cta-btn"
+                  style={{ flex: 1, background: `linear-gradient(135deg,${T.greenNav},${T.greenDark})`, color: '#070A0E', border: 'none', borderRadius: '12px', padding: '13px', fontWeight: 700, fontSize: '14px', cursor: 'pointer' }}>
+                  Get Started Free →
+                </button>
+                <button onClick={() => setShowWelcome(false)}
+                  style={{ background: T.bgSkill, color: T.textSub, border: `1px solid ${T.border}`, borderRadius: '12px', padding: '13px 18px', fontWeight: 500, fontSize: '14px', cursor: 'pointer' }}>
+                  Explore First
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── REGISTRATION MODAL ── */}
       {showRegModal && (
@@ -202,14 +279,14 @@ export default function Landing() {
               <div style={{ textAlign: 'center', padding: '24px 0' }}>
                 <div style={{ fontSize: '52px', marginBottom: '16px' }}>🎉</div>
                 <h3 style={{ fontFamily: 'DM Serif Display, serif', fontSize: '24px', color: T.green, marginBottom: '10px' }}>You're registered!</h3>
-                <p style={{ color: T.textMuted, fontSize: '14px' }}>Welcome to Agent Seva, {regForm.name}. We'll be in touch soon.</p>
+                <p style={{ color: T.textMuted, fontSize: '14px' }}>Welcome to Kirana Edge, {regForm.name}. We'll be in touch soon.</p>
               </div>
             ) : (
               <>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
                   <div>
                     <h3 style={{ fontFamily: 'DM Serif Display, serif', fontSize: '22px', color: T.text, marginBottom: '4px' }}>Create your account</h3>
-                    <p style={{ fontSize: '13px', color: T.textMuted }}>Join Agent Seva as a vendor</p>
+                    <p style={{ fontSize: '13px', color: T.textMuted }}>Join Kirana Edge as a vendor</p>
                   </div>
                   <button onClick={() => setShowRegModal(false)} style={{ background: T.bgSkill, border: `1px solid ${T.border}`, borderRadius: '8px', width: '32px', height: '32px', color: T.textSub, cursor: 'pointer', fontSize: '18px', lineHeight: 1, flexShrink: 0 }}>×</button>
                 </div>
@@ -264,7 +341,7 @@ export default function Landing() {
         {/* LEFT: Logo only */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
           <div style={{ width: '34px', height: '34px', borderRadius: '9px', background: `linear-gradient(135deg,${T.green},${T.greenDark})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '15px', color: '#070A0E' }}>A</div>
-          <span style={{ fontFamily: 'DM Serif Display, serif', fontSize: '18px', color: T.text }}>Agent <span style={{ color: T.greenNav }}>Seva</span></span>
+          <span style={{ fontFamily: 'DM Serif Display, serif', fontSize: '18px', color: T.text }}>Kirana <span style={{ color: T.greenNav }}>Edge</span></span>
         </div>
 
         {/* CENTER: Nav links WITH Products dropdown inline */}
@@ -277,7 +354,7 @@ export default function Landing() {
             </button>
             {showProducts && (
               <div style={{ position: 'absolute', top: 'calc(100% + 14px)', left: '50%', transform: 'translateX(-50%)', background: T.bgDropdown, border: `1px solid ${T.border}`, borderRadius: '16px', padding: '10px', width: '300px', zIndex: 200, boxShadow: T.shadow }}>
-                <p style={{ fontSize: '9px', color: T.textMuted, fontWeight: 700, padding: '4px 12px 8px', letterSpacing: '0.12em' }}>PRODUCTS BY AGENTSEVA</p>
+                <p style={{ fontSize: '9px', color: T.textMuted, fontWeight: 700, padding: '4px 12px 8px', letterSpacing: '0.12em' }}>PRODUCTS BY KIRANA EDGE</p>
                 {PRODUCTS.map((p, i) => (
                   <div key={i} className="prod-item" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 12px', marginBottom: '2px' }}>
                     <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: `${p.color}15`, border: `1px solid ${p.color}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>{p.icon}</div>
@@ -315,26 +392,65 @@ export default function Landing() {
             <button className="cta-btn" style={{ background: `linear-gradient(135deg,${T.green},${T.greenDark})`, color: '#070A0E', border: 'none', borderRadius: '9px', padding: '8px 18px', fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}>Sign In →</button>
           </Link>
           <button className="mobile-menu-btn" onClick={() => setMobileMenu(!mobileMenu)}
-            style={{ background: T.bgSkill, border: `1px solid ${T.border}`, borderRadius: '8px', padding: '7px 10px', color: T.text, cursor: 'pointer', fontSize: '18px', alignItems: 'center', justifyContent: 'center' }}>
+            style={{ background: T.bgSkill, border: `1px solid ${T.border}`, borderRadius: '8px', padding: '7px 10px', color: T.text, cursor: 'pointer', fontSize: '18px', display: 'none', alignItems: 'center', justifyContent: 'center' }}>
             {mobileMenu ? '✕' : '☰'}
           </button>
         </div>
       </nav>
 
-      {/* Mobile nav */}
+      {/* ── MOBILE NAV ── */}
       <div className={`mobile-nav ${mobileMenu ? 'open' : ''}`}>
-        {['Features', 'How It Works', 'Market', 'Team', 'Developers'].map(l => (
-          <a key={l} href={`#${l.toLowerCase().replace(/ /g, '-')}`} onClick={() => setMobileMenu(false)}
-            style={{ fontSize: '15px', color: T.text, fontWeight: 500, padding: '10px 0', borderBottom: `1px solid ${T.border}` }}>{l}</a>
-        ))}
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', paddingTop: '4px' }}>
-          <button onClick={toggleTheme} style={{ width: '44px', height: '44px', borderRadius: '10px', background: T.bgSkill, border: `1px solid ${T.border}`, cursor: 'pointer', fontSize: '20px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{isDark ? '☀️' : '🌙'}</button>
-          <button onClick={() => { setMobileMenu(false); setShowRegModal(true) }}
-            style={{ flex: 1, background: `${T.green}14`, color: T.green, border: `1px solid ${T.green}30`, borderRadius: '10px', padding: '12px', fontWeight: 700, fontSize: '14px', cursor: 'pointer' }}>
-            Register
+
+        {/* Products expandable */}
+        <div>
+          <button onClick={() => setMobileProducts(!mobileProducts)}
+            style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', padding: '10px 0', borderBottom: `1px solid ${T.border}` }}>
+            <span style={{ fontSize: '15px', color: T.text, fontWeight: 600 }}>Products</span>
+            <span style={{ fontSize: '12px', color: T.textMuted }}>{mobileProducts ? '▲' : '▾'}</span>
           </button>
-          <Link href="/login" style={{ flex: 1 }} onClick={() => setMobileMenu(false)}>
-            <button style={{ width: '100%', background: `linear-gradient(135deg,${T.green},${T.greenDark})`, color: '#070A0E', border: 'none', borderRadius: '10px', padding: '12px', fontWeight: 700, fontSize: '14px', cursor: 'pointer' }}>Sign In →</button>
+          {mobileProducts && (
+            <div style={{ padding: '8px 0 4px' }}>
+              {PRODUCTS.map((p, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 8px', borderRadius: '10px', marginBottom: '4px', background: T.bgCard }}>
+                  <div style={{ width: '36px', height: '36px', borderRadius: '9px', background: `${p.color}15`, border: `1px solid ${p.color}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>{p.icon}</div>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
+                      <span style={{ fontSize: '14px', fontWeight: 700, color: T.text }}>{p.name}</span>
+                      <span style={{ fontSize: '9px', fontWeight: 700, padding: '2px 6px', borderRadius: '20px', background: `${p.color}18`, color: p.color }}>{p.tag}</span>
+                    </div>
+                    <p style={{ fontSize: '11px', color: T.textMuted }}>{p.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Nav links */}
+        {['Features', 'How It Works', 'Market', 'Team', 'Developers'].map(l => (
+          <a key={l} href={`#${l.toLowerCase().replace(/ /g, '-')}`}
+            onClick={() => setMobileMenu(false)}
+            style={{ fontSize: '15px', color: T.text, fontWeight: 500, padding: '10px 0', borderBottom: `1px solid ${T.border}`, display: 'block' }}>
+            {l}
+          </a>
+        ))}
+
+        {/* Bottom actions */}
+        <div style={{ paddingTop: '8px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button onClick={toggleTheme}
+              style={{ width: '44px', height: '44px', borderRadius: '10px', background: T.bgSkill, border: `1px solid ${T.border}`, cursor: 'pointer', fontSize: '20px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {isDark ? '☀️' : '🌙'}
+            </button>
+            <button onClick={() => { setMobileMenu(false); setShowRegModal(true) }}
+              style={{ flex: 1, background: `${T.greenNav}14`, color: T.greenNav, border: `1px solid ${T.greenNav}30`, borderRadius: '10px', padding: '12px', fontWeight: 700, fontSize: '14px', cursor: 'pointer' }}>
+              Register
+            </button>
+          </div>
+          <Link href="/login" onClick={() => setMobileMenu(false)}>
+            <button style={{ width: '100%', background: `linear-gradient(135deg,${T.green},${T.greenDark})`, color: '#070A0E', border: 'none', borderRadius: '10px', padding: '13px', fontWeight: 700, fontSize: '14px', cursor: 'pointer' }}>
+              Sign In →
+            </button>
           </Link>
         </div>
       </div>
@@ -342,16 +458,19 @@ export default function Landing() {
       {/* ── HERO ── */}
       <section className="grid-bg" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', padding: 'clamp(100px,12vw,130px) 5% 80px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: '10%', left: '10%', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(0,255,148,0.07) 0%,transparent 70%)', pointerEvents: 'none' }} />
-        <div className="startup-badge" style={{ position: 'absolute', top: '82px', right: '5%', background: 'rgba(124,111,255,0.1)', border: '1px solid rgba(124,111,255,0.25)', borderRadius: '12px', padding: '8px 14px', textAlign: 'right', zIndex: 10 }}>
-          <div style={{ fontSize: '10px', fontWeight: 700, color: T.purple, letterSpacing: '0.06em' }}>🏛️ RATAN TATA INNOVATION HUB</div>
-          <div style={{ fontSize: '10px', color: T.textMuted, marginTop: '2px' }}>TRL5 · Under Approval Phase</div>
-        </div>
+
         <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
           <div className="hero-grid">
             <div>
-              <div className="float" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(0,255,148,0.08)', border: '1px solid rgba(0,255,148,0.2)', borderRadius: '30px', padding: '6px 14px', marginBottom: '24px' }}>
-                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.green, flexShrink: 0 }} />
-                <span style={{ fontSize: '12px', color: T.green, fontWeight: 500 }}>Now in Pilot — 5 Local Stores</span>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px', alignItems: 'center' }}>
+                <div className="float" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(0,255,148,0.08)', border: '1px solid rgba(0,255,148,0.2)', borderRadius: '30px', padding: '5px 12px' }}>
+                  <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: T.green, flexShrink: 0 }} />
+                  <span style={{ fontSize: '11px', color: T.green, fontWeight: 500 }}>Now in Pilot — 5 Local Stores</span>
+                </div>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: 'rgba(124,111,255,0.08)', border: '1px solid rgba(124,111,255,0.2)', borderRadius: '30px', padding: '5px 12px' }}>
+                  <span style={{ fontSize: '10px' }}>🏛️</span>
+                  <span style={{ fontSize: '10px', fontWeight: 600, color: T.purple }}>Ratan Tata Hub · TRL5</span>
+                </div>
               </div>
               <h1 style={{ fontFamily: 'DM Serif Display, serif', fontSize: 'clamp(36px,5vw,60px)', fontWeight: 400, lineHeight: 1.1, letterSpacing: '-1px', marginBottom: '20px', color: T.text }}>
                 The Offline-First<br />
@@ -359,7 +478,7 @@ export default function Landing() {
                 for India's Kiranas
               </h1>
               <p style={{ fontSize: 'clamp(14px,2vw,17px)', color: T.textMuted, lineHeight: 1.7, marginBottom: '28px', maxWidth: '480px' }}>
-                Agent Seva brings powerful retail management to Tier-2 & Tier-3 cities — running entirely on a local network. No internet required, ever.
+                Kirana Edge brings powerful retail management to Tier-2 & Tier-3 cities — running entirely on a local network. No internet required, ever.
               </p>
               <div className="hero-btns" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '32px' }}>
                 <button onClick={() => setShowRegModal(true)} className="cta-btn"
@@ -383,7 +502,7 @@ export default function Landing() {
             <div className="hero-mockup" style={{ position: 'relative' }}>
               <div style={{ background: T.bgCard2, border: `1px solid rgba(0,255,148,0.15)`, borderRadius: '20px', padding: '20px', boxShadow: T.shadow }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                  <span style={{ fontWeight: 700, color: T.green, fontSize: '13px' }}>Agent Seva</span>
+                  <span style={{ fontWeight: 700, color: T.green, fontSize: '13px' }}>Kirana Edge</span>
                   <div style={{ display: 'flex', gap: '5px' }}>
                     {['#FF5F57','#FEBC2E','#28C840'].map(c => <div key={c} style={{ width: '9px', height: '9px', borderRadius: '50%', background: c }} />)}
                   </div>
@@ -520,7 +639,7 @@ export default function Landing() {
                 Cloud solutions fail.<br /><span style={{ fontStyle: 'italic', color: T.purple }}>We don't.</span>
               </h2>
               <p style={{ fontSize: '14px', color: T.textMuted, lineHeight: 1.7, marginBottom: '24px' }}>
-                Every cloud-based platform fails the moment internet drops. Agent Seva runs on Local LAN — your store keeps running no matter what.
+                Every cloud-based platform fails the moment internet drops. Kirana Edge runs on Local LAN — your store keeps running no matter what.
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: T.bgCard, border: `1px solid ${T.border}`, borderRadius: '12px', padding: '12px 16px' }}>
@@ -531,7 +650,7 @@ export default function Landing() {
                   </div>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: T.bgGreenCard, border: '1px solid rgba(0,255,148,0.2)', borderRadius: '12px', padding: '12px 16px' }}>
-                  <span style={{ fontSize: '13px', fontWeight: 600, color: T.green }}>Agent Seva</span>
+                  <span style={{ fontSize: '13px', fontWeight: 600, color: T.green }}>Kirana Edge</span>
                   <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
                     <span style={{ fontSize: '12px', color: T.textMuted }}>₹19,800 one-time</span>
                     <span style={{ fontSize: '16px' }}>✅</span>
@@ -642,8 +761,8 @@ export default function Landing() {
         <div className="footer-inner" style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{ width: '28px', height: '28px', borderRadius: '7px', background: `linear-gradient(135deg,${T.green},${T.greenDark})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '13px', color: '#070A0E' }}>A</div>
-            <span style={{ fontFamily: 'DM Serif Display, serif', fontSize: '16px', color: T.text }}>Agent Seva</span>
-            <span style={{ fontSize: '10px', color: T.textMuted, marginLeft: '4px' }}>· A product of AgentSeva</span>
+            <span style={{ fontFamily: 'DM Serif Display, serif', fontSize: '16px', color: T.text }}>Kirana Edge</span>
+            <span style={{ fontSize: '10px', color: T.textMuted, marginLeft: '4px' }}>· A product of Agent Seva</span>
           </div>
           <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', justifyContent: 'center' }}>
             <span style={{ fontSize: '13px', color: T.textMuted }}>📞 9491803089</span>
@@ -654,7 +773,7 @@ export default function Landing() {
               style={{ background: T.bgSkill, border: `1px solid ${T.border}`, borderRadius: '8px', padding: '6px 10px', cursor: 'pointer', fontSize: '14px', color: T.textSub, display: 'flex', alignItems: 'center', gap: '6px' }}>
               {isDark ? '☀️ Light' : '🌙 Dark'}
             </button>
-            <span style={{ fontSize: '12px', color: T.textMuted }}>© 2025 Agent Seva 🇮🇳</span>
+            <span style={{ fontSize: '12px', color: T.textMuted }}>© 2025 Kirana Edge 🇮🇳</span>
           </div>
         </div>
       </footer>
